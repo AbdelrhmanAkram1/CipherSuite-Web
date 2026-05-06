@@ -1,1 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CryptoKit — Cryptography Toolkit</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="wrapper">
 
+  <!-- HEADER -->
+  <header>
+    <div class="logo-icon">🔐</div>
+    <div class="logo-text">
+      <h1>Crypto<span>Kit</span></h1>
+      <p>CRYPTOGRAPHY TOOLKIT — ALEXANDRIA UNIVERSITY</p>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active"     onclick="switchTab('symmetric',this)">⚙ Symmetric</button>
+    <button class="tab-btn"            onclick="switchTab('asymmetric',this)">🔑 Asymmetric</button>
+    <button class="tab-btn green-tab"  onclick="switchTab('encoding',this)">⟨/⟩ Encoding</button>
+    <button class="tab-btn yellow-tab" onclick="switchTab('hashing',this)">∑ Hashing</button>
+  </div>
+
+  <!-- ═══════════════════════════ PANEL 1: SYMMETRIC ═══════════════════════════ -->
+  <div id="panel-symmetric" class="panel active">
+    <div class="section-title">// SYMMETRIC ENCRYPTION & DECRYPTION</div>
+
+    <div class="algo-grid">
+      <button class="algo-btn active" onclick="selectAlgo('sym','AES',this)">AES-256</button>
+      <button class="algo-btn"        onclick="selectAlgo('sym','DES',this)">DES</button>
+      <button class="algo-btn"        onclick="selectAlgo('sym','3DES',this)">3DES</button>
+    </div>
+
+    <div class="field">
+      <label>Plaintext / Ciphertext</label>
+      <textarea id="sym-input" placeholder="Enter your message here..."></textarea>
+    </div>
+    <div class="field">
+      <label>Secret Key</label>
+      <input type="text" id="sym-key" placeholder="AES: 16/24/32 chars | DES: 8 chars | 3DES: 16/24 chars">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-cyan"  onclick="symOp('encrypt')">▶ Encrypt</button>
+      <button class="btn btn-ghost" onclick="symOp('decrypt')">◀ Decrypt</button>
+      <button class="btn btn-ghost" onclick="clearPanel('sym')">✕ Clear</button>
+    </div>
+    <div id="sym-status" class="status"></div>
+    <div class="output-box">
+      <div class="output-label">OUTPUT</div>
+      <div class="output-value cyan" id="sym-output"><span class="blink">_</span></div>
+      <button class="copy-btn" onclick="copyEl('sym-output')">COPY</button>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-title">// ALGORITHM INFO</div>
+    <div id="sym-info" class="algo-info">
+      <span style="color:var(--accent)">AES-256</span> (Advanced Encryption Standard) — Block cipher using CBC mode with PKCS7 padding.
+      Key must be exactly 16, 24, or 32 characters. Industry standard for symmetric encryption.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ PANEL 2: ASYMMETRIC ═══════════════════════════ -->
+  <div id="panel-asymmetric" class="panel">
+    <div class="section-title">// RSA ASYMMETRIC ENCRYPTION & DECRYPTION</div>
+
+    <div class="field">
+      <label>Key Size</label>
+      <select id="rsa-bits">
+        <option value="1024">1024 bits (fast)</option>
+        <option value="2048" selected>2048 bits (recommended)</option>
+        <option value="4096">4096 bits (strong)</option>
+      </select>
+    </div>
+    <div class="btn-row" style="margin-bottom:20px;">
+      <button class="btn btn-cyan" id="gen-btn" onclick="generateKeys()">⚡ Generate Key Pair</button>
+    </div>
+    <div id="rsa-gen-status" class="status"></div>
+
+    <div class="key-box">
+      <div class="field">
+        <label>Public Key (for encryption)</label>
+        <textarea id="rsa-pubkey" placeholder="Public key will appear here after generation..."></textarea>
+      </div>
+      <div class="field">
+        <label>Private Key (for decryption)</label>
+        <textarea id="rsa-privkey" placeholder="Private key will appear here after generation..."></textarea>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>Message / Ciphertext</label>
+      <textarea id="rsa-input" placeholder="Enter your message or paste ciphertext here..."></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-cyan"  onclick="rsaOp('encrypt')">▶ Encrypt with Public Key</button>
+      <button class="btn btn-ghost" onclick="rsaOp('decrypt')">◀ Decrypt with Private Key</button>
+      <button class="btn btn-ghost" onclick="clearPanel('rsa')">✕ Clear</button>
+    </div>
+    <div id="rsa-status" class="status"></div>
+    <div class="output-box">
+      <div class="output-label">OUTPUT</div>
+      <div class="output-value cyan" id="rsa-output"><span class="blink">_</span></div>
+      <button class="copy-btn" onclick="copyEl('rsa-output')">COPY</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ PANEL 3: ENCODING ═══════════════════════════ -->
+  <div id="panel-encoding" class="panel">
+    <div class="section-title">// ENCODING & DECODING</div>
+
+    <div class="algo-grid">
+      <button class="algo-btn green active" onclick="selectAlgo('enc','Base64',this)">Base64</button>
+      <button class="algo-btn green"        onclick="selectAlgo('enc','Hex',this)">Hex</button>
+      <button class="algo-btn green"        onclick="selectAlgo('enc','URL Encoding',this)">URL Encoding</button>
+    </div>
+
+    <div class="field">
+      <label>Input Text</label>
+      <textarea id="enc-input" placeholder="Enter text to encode or decode..."></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="encOp('encode')">▶ Encode</button>
+      <button class="btn btn-ghost" onclick="encOp('decode')">◀ Decode</button>
+      <button class="btn btn-ghost" onclick="clearPanel('enc')">✕ Clear</button>
+    </div>
+    <div id="enc-status" class="status"></div>
+    <div class="output-box green-border">
+      <div class="output-label">OUTPUT</div>
+      <div class="output-value" id="enc-output"><span class="blink">_</span></div>
+      <button class="copy-btn" onclick="copyEl('enc-output')">COPY</button>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-title">// TECHNIQUE INFO</div>
+    <div id="enc-info" class="algo-info">
+      <span style="color:var(--accent2)">Base64</span> — Encodes binary/text into a 64-character alphabet (A-Z, a-z, 0-9, +, /).
+      Used in email attachments, JWT tokens, and data URIs. Output is ~33% larger than input.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ PANEL 4: HASHING ═══════════════════════════ -->
+  <div id="panel-hashing" class="panel">
+    <div class="section-title">// HASHING</div>
+
+    <div class="algo-grid">
+      <button class="algo-btn yellow active" onclick="selectAlgo('hash','SHA-256',this)">SHA-256</button>
+      <button class="algo-btn yellow"        onclick="selectAlgo('hash','SHA-512',this)">SHA-512</button>
+      <button class="algo-btn yellow"        onclick="selectAlgo('hash','Salted Hashing',this)">Salted Hashing</button>
+    </div>
+
+    <div class="field">
+      <label>Input Text</label>
+      <textarea id="hash-input" placeholder="Enter text to hash..."></textarea>
+    </div>
+    <div id="salt-field" class="field" style="display:none;">
+      <label>Salt (leave empty to auto-generate)</label>
+      <input type="text" id="hash-salt" placeholder="Enter custom salt or leave empty for random...">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-yellow" onclick="hashOp()">∑ Compute Hash</button>
+      <button class="btn btn-ghost"  onclick="clearPanel('hash')">✕ Clear</button>
+    </div>
+    <div id="hash-status" class="status"></div>
+    <div class="output-box yellow-border">
+      <div class="output-label">HASH OUTPUT</div>
+      <div class="output-value yellow" id="hash-output"><span class="blink">_</span></div>
+      <button class="copy-btn" onclick="copyEl('hash-output')">COPY</button>
+    </div>
+
+    <div id="salt-display-row" style="display:none; margin-top:14px;">
+      <div class="output-box yellow-border">
+        <div class="output-label">SALT USED</div>
+        <div class="output-value yellow" id="salt-used-display"></div>
+        <button class="copy-btn" onclick="copyEl('salt-used-display')">COPY</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-title">// ALGORITHM INFO</div>
+    <div id="hash-info" class="algo-info">
+      <span style="color:var(--accent4)">SHA-256</span> — Produces a 256-bit (32-byte) hash. Part of the SHA-2 family.
+      One-way function — cannot be reversed. Used in digital signatures, certificates, and blockchain.
+    </div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<script>
+// ═══════════════════════════════════
+// STATE
+// ═══════════════════════════════════
+const state = { sym: 'AES', enc: 'Base64', hash: 'SHA-256' };
+
+// ═══════════════════════════════════
+// TABS
+// ═══════════════════════════════════
+function switchTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════
+// ALGO SELECTOR
+// ═══════════════════════════════════
+const infoMap = {
+  sym: {
+    AES:   '<span style="color:var(--accent)">AES-256</span> — Block cipher with CBC mode. Key: 16, 24, or 32 characters. Industry standard.',
+    DES:   '<span style="color:var(--accent)">DES</span> — 64-bit block cipher. Key: exactly 8 characters. Legacy, considered insecure today.',
+    '3DES':'<span style="color:var(--accent)">3DES</span> — Applies DES three times. Key: 16 or 24 characters. More secure than DES but slower.'
+  },
+  enc: {
+    'Base64':      '<span style="color:var(--accent2)">Base64</span> — Encodes data into 64-char alphabet. Output is ~33% larger than input.',
+    'Hex':         '<span style="color:var(--accent2)">Hex</span> — Each byte becomes 2 hex characters (0-9, a-f). Output is 2× the byte length.',
+    'URL Encoding':'<span style="color:var(--accent2)">URL Encoding</span> — Replaces special chars with %XX sequences. Used in HTTP query strings.'
+  },
+  hash: {
+    'SHA-256':       '<span style="color:var(--accent4)">SHA-256</span> — 256-bit hash. Part of SHA-2. Used in blockchain, certificates, and digital signatures.',
+    'SHA-512':       '<span style="color:var(--accent4)">SHA-512</span> — 512-bit hash. More resistant to brute-force. Used in high-security applications.',
+    'Salted Hashing':'<span style="color:var(--accent4)">Salted Hashing</span> — Adds random salt before hashing. Prevents rainbow table attacks. Used for passwords.'
+  }
+};
+
+function selectAlgo(group, algo, btn) {
+  state[group] = algo;
+  const panel = group === 'sym' ? 'symmetric' : group === 'enc' ? 'encoding' : 'hashing';
+  document.querySelectorAll(`#panel-${panel} .algo-btn`).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`${group}-info`).innerHTML = infoMap[group][algo];
+  if (group === 'hash') {
+    document.getElementById('salt-field').style.display = algo === 'Salted Hashing' ? 'block' : 'none';
+    document.getElementById('salt-display-row').style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════
+// API HELPER
+// ═══════════════════════════════════
+async function api(endpoint, body) {
+  const res  = await fetch(endpoint, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+// ═══════════════════════════════════
+// SYMMETRIC
+// ═══════════════════════════════════
+async function symOp(action) {
+  const text = document.getElementById('sym-input').value.trim();
+  const key  = document.getElementById('sym-key').value;
+  if (!text || !key) return showStatus('sym-status', 'Please provide both text and key.', 'err');
+
+  const data = await api('/process', { mode:'Symmetric', algo:state.sym, text, key, action });
+  if (data.error) return showStatus('sym-status', data.error, 'err');
+  document.getElementById('sym-output').textContent = data.result;
+  showStatus('sym-status', `✓ ${action === 'encrypt' ? 'Encrypted' : 'Decrypted'} using ${state.sym}.`, 'ok');
+}
+
+// ═══════════════════════════════════
+// RSA
+// ═══════════════════════════════════
+async function generateKeys() {
+  const btn  = document.getElementById('gen-btn');
+  const bits = document.getElementById('rsa-bits').value;
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+  btn.disabled  = true;
+  showStatus('rsa-gen-status', `Generating ${bits}-bit RSA key pair...`, 'ok');
+
+  const data = await api('/generate_keys', { bits });
+  if (data.error) {
+    showStatus('rsa-gen-status', data.error, 'err');
+  } else {
+    document.getElementById('rsa-pubkey').value  = data.public_key;
+    document.getElementById('rsa-privkey').value = data.private_key;
+    showStatus('rsa-gen-status', `✓ ${bits}-bit RSA key pair generated.`, 'ok');
+  }
+  btn.innerHTML = '⚡ Generate Key Pair';
+  btn.disabled  = false;
+}
+
+async function rsaOp(action) {
+  const text    = document.getElementById('rsa-input').value.trim();
+  const pub_key = document.getElementById('rsa-pubkey').value.trim();
+  const priv_key= document.getElementById('rsa-privkey').value.trim();
+  if (!text) return showStatus('rsa-status', 'Please enter text.', 'err');
+
+  const data = await api('/process', {
+    mode:'Asymmetric', algo:'RSA', text, action,
+    public_key: pub_key, private_key: priv_key
+  });
+  if (data.error) return showStatus('rsa-status', data.error, 'err');
+  document.getElementById('rsa-output').textContent = data.result;
+  showStatus('rsa-status', `✓ ${action === 'encrypt' ? 'Encrypted with public key' : 'Decrypted with private key'}.`, 'ok');
+}
+
+// ═══════════════════════════════════
+// ENCODING
+// ═══════════════════════════════════
+async function encOp(action) {
+  const text = document.getElementById('enc-input').value;
+  if (!text) return showStatus('enc-status', 'Please enter text.', 'err');
+
+  const data = await api('/process', { mode:'Encoding', algo:state.enc, text, action });
+  if (data.error) return showStatus('enc-status', data.error, 'err');
+  document.getElementById('enc-output').textContent = data.result;
+  showStatus('enc-status', `✓ ${action === 'encode' ? 'Encoded' : 'Decoded'} using ${state.enc}.`, 'ok');
+}
+
+// ═══════════════════════════════════
+// HASHING
+// ═══════════════════════════════════
+async function hashOp() {
+  const text = document.getElementById('hash-input').value;
+  const salt = document.getElementById('hash-salt').value;
+  if (!text) return showStatus('hash-status', 'Please enter text.', 'err');
+
+  const data = await api('/process', { mode:'Hashing', algo:state.hash, text, key: salt });
+  if (data.error) return showStatus('hash-status', data.error, 'err');
+  document.getElementById('hash-output').textContent = data.result;
+
+  if (data.salt) {
+    document.getElementById('salt-display-row').style.display = 'block';
+    document.getElementById('salt-used-display').textContent  = data.salt;
+  }
+  showStatus('hash-status', `✓ Hash computed using ${state.hash}.`, 'ok');
+}
+
+// ═══════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════
+function clearPanel(prefix) {
+  ['input','key','output','salt'].forEach(id => {
+    const el = document.getElementById(`${prefix}-${id}`);
+    if (el) { el.value ? el.value = '' : el.innerHTML = '<span class="blink">_</span>'; }
+  });
+  const out = document.getElementById(`${prefix}-output`);
+  if (out) out.innerHTML = '<span class="blink">_</span>';
+  const st = document.getElementById(`${prefix}-status`);
+  if (st) st.className = 'status';
+  if (prefix === 'hash') {
+    document.getElementById('salt-display-row').style.display = 'none';
+    document.getElementById('hash-salt').value = '';
+  }
+}
+
+function showStatus(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className   = 'status ' + type;
+}
+
+function copyEl(id) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.currentTarget;
+    btn.textContent = 'COPIED!';
+    setTimeout(() => btn.textContent = 'COPY', 1500);
+  });
+}
+</script>
+</body>
+</html>
